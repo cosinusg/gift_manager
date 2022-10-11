@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gift_manager/presentation/home/view/home_page.dart';
-import 'package:gift_manager/presentation/login/bloc/bloc/login_bloc.dart';
+import 'package:gift_manager/presentation/login/bloc/login_bloc.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
