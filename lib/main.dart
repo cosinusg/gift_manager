@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gift_manager/presentation/login/view/login_page.dart';
+import 'package:gift_manager/presentation/theme/theme.dart';
+import 'package:gift_manager/simple_bloc_observer.dart';
 
 void main() {
-  runApp(const MyApp());
+  BlocOverrides.runZoned(
+    () => runApp(const MyApp()),
+    blocObserver: SimpleBlocObserver(),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,9 +18,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      //themeMode: ThemeMode.light,
       home: const LoginPage(),
     );
   }
