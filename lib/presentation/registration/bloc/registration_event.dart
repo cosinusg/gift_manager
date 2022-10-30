@@ -76,3 +76,17 @@ class RegistrationNameFocusLost extends RegistrationEvent {
   List<Object?> get props => [];
 
 }
+
+class RegistrationChangeAvatar extends RegistrationEvent {
+  const RegistrationChangeAvatar();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class RegistrationCreateAccount extends RegistrationEvent {
+  const RegistrationCreateAccount();
+
+  @override
+  List<Object?> get props => [];
+}
