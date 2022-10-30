@@ -6,6 +6,7 @@ import 'package:gift_manager/presentation/login/bloc/login_bloc.dart';
 import 'package:gift_manager/presentation/login/model/email_error.dart';
 import 'package:gift_manager/presentation/login/model/models.dart';
 import 'package:gift_manager/presentation/login/model/password_error.dart';
+import 'package:gift_manager/presentation/registration/view/registration_page.dart';
 import 'package:gift_manager/resources/app_colors.dart';
 
 class LoginPage extends StatelessWidget {
@@ -115,7 +116,8 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
                 ),
               ),
               TextButton(
-                  onPressed: () => debugPrint('Нажали кнопку Создать'),
+                  onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => RegistrationPage())),
                   child: Text('Создать')),
             ],
           ),
