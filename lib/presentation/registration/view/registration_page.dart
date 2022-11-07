@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gift_manager/extentions/build_context.dart';
 import 'package:gift_manager/extentions/theme_extentions.dart';
+import 'package:gift_manager/presentation/home/view/home_page.dart';
 import 'package:gift_manager/presentation/registration/bloc/registration_bloc.dart';
 import 'package:gift_manager/resources/app_colors.dart';
 
@@ -87,42 +88,55 @@ class _RegistrationPageState extends State<_RegistrationPageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text('Создать аккаунт', style: context.theme.h2),
-                  SizedBox(
-                    height: 24,
-                  ),
-                  _EmailTextField(
-                      emailFocusNode: _emailFocusNode,
-                      passwordFocusNode: _passwordFocusNode),
-                  _PasswordTextField(
-                      passwordFocusNode: _passwordFocusNode,
-                      passwordConfirmationFocusNode:
-                          _passwordConfirmationFocusNode),
-                  _PasswordConfirmationTextField(
-                      passwordConfirmationFocusNode:
-                          _passwordConfirmationFocusNode,
-                      nameFocusNode: _nameFocusNode),
-                  _NameTextField(nameFocusNode: _nameFocusNode),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  _AvatarWidget(),
-                ],
+    return BlocListener<RegistrationBloc, RegistrationState>(
+      listener: (context, state) {
+        if (state is RegistrationComplete) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => HomePage()),
+            (route) => false,
+          );
+        }
+      },
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  children: [
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('Создать аккаунт', style: context.theme.h2),
+                    ),
+                    SizedBox(
+                      height: 24,
+                    ),
+                    _EmailTextField(
+                        emailFocusNode: _emailFocusNode,
+                        passwordFocusNode: _passwordFocusNode),
+                    _PasswordTextField(
+                        passwordFocusNode: _passwordFocusNode,
+                        passwordConfirmationFocusNode:
+                            _passwordConfirmationFocusNode),
+                    _PasswordConfirmationTextField(
+                        passwordConfirmationFocusNode:
+                            _passwordConfirmationFocusNode,
+                        nameFocusNode: _nameFocusNode),
+                    _NameTextField(nameFocusNode: _nameFocusNode),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    _AvatarWidget(),
+                  ],
+                ),
               ),
-            ),
-            _RegisterButton(),
-          ],
+              _RegisterButton(),
+            ],
+          ),
         ),
       ),
     );
