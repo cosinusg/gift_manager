@@ -3,13 +3,20 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:either_dart/either.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:gift_manager/data/http/model/api_error.dart';
 import 'package:gift_manager/data/http/model/create_account_request_dto.dart';
 import 'package:gift_manager/data/http/model/user_with_tokens_dto.dart';
+import 'package:gift_manager/data/http/unauthorized_api_service.dart';
 import 'package:gift_manager/data/model/request_error.dart';
+import 'package:gift_manager/data/repository/refresh_token_repository.dart';
+import 'package:gift_manager/data/repository/token_repository.dart';
+import 'package:gift_manager/data/repository/user_repository.dart';
 import 'package:gift_manager/data/storage/shared_preference_data.dart';
+import 'package:gift_manager/di/service_locator.dart';
 import 'package:gift_manager/presentation/registration/model/errors.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -20,7 +27,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   static const _defaultAvatarKey = 'test';
   static final _registrationPasswordRegexp = RegExp(r'^[a-zA-Z0-9]+$');
   static String _avatarBuilder(final String key) =>
-      'https://avatars.dicebear.com/api/croodles/$key.svg';
+      "https://avatars.dicebear.com/api/croodles/$key.svg";
   String _avatarKey = _defaultAvatarKey;
 
   String _email = '';
@@ -185,43 +192,27 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
       return;
     }
     emit(RegistrationInProgress());
-    final token = await _register();
-    SharedPreferenceData.getInstance().setToken(token);
-    emit(RegistrationComplete());
+    final response = await _register();
+    if (response.isRight) {
+      final userWithTokens = response.right;
+      await sl.get<UserRepository>().setItem(userWithTokens.user);
+      await sl.get<TokenRepository>().setItem(userWithTokens.token);
+      await sl.get<RefreshTokenRepository>()
+          .setItem(userWithTokens.refreshToken);
+      emit(RegistrationComplete());
+    } else {
+      // TODO
+    }
   }
 
-  Future<String> _register() async {
-    final dio = Dio(
-      BaseOptions(baseUrl: 'https://giftmanager.skill-branch.ru/api'),
-    );
-    if (kDebugMode) {
-      dio.interceptors.add(
-        PrettyDioLogger(
-          request: true,
-          requestHeader: true,
-          requestBody: true,
-          responseHeader: true,
-          responseBody: true,
-          error: true,
-        ),
-      );
-    }
-    final requestBody = CreateAccountRequestDto(
+  Future<Either<ApiError, UserWithTokensDto>> _register() async {
+    final response = await UnauthorizedApiService.getInstance().register(
       email: _email,
       password: _password,
       name: _name,
       avatarUrl: _avatarBuilder(_avatarKey),
     );
-    try {
-      final response = await dio.post(
-        '/auth/create',
-        data: requestBody.toJson(),
-      );
-      final userWithTokens = UserWithTokensDto.fromJson(response.data);
-      await Future.delayed(Duration(seconds: 2));
-      return userWithTokens.token;
-    } catch (e) {}
     await Future.delayed(Duration(seconds: 2));
-    return 'token';
+    return response;
   }
 }

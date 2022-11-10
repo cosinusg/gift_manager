@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'create_account_request_dto.g.dart';
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable()
 class CreateAccountRequestDto extends Equatable {
   final String email;
   final String password;

@@ -11,14 +11,17 @@ environment:
 dependencies:
   cupertino_icons: ^1.0.2
   dio: ^4.0.6
+  either_dart: ^0.3.0
   email_validator: ^2.0.1
   equatable: ^2.0.3
   flutter:
     sdk: flutter
   flutter_bloc: ^8.0.1
   flutter_svg: ^1.1.1+1
+  get_it: ^7.2.0
   json_annotation: ^4.7.0
   pretty_dio_logger: ^1.1.1
+  rxdart: ^0.27.5
   shared_preferences: ^2.0.15
 
 dev_dependencies:

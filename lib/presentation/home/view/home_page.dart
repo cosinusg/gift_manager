@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gift_manager/data/http/model/user_dto.dart';
+import 'package:gift_manager/data/repository/user_repository.dart';
 import 'package:gift_manager/data/storage/shared_preference_data.dart';
+import 'package:gift_manager/di/service_locator.dart';
 import 'package:gift_manager/presentation/login/view/login_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -9,19 +12,35 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
-        children: [
-          Center(child: Text("HomePage")),
-          SizedBox(height: 42,),
-          TextButton(onPressed: () async {
-            await SharedPreferenceData.getInstance().setToken(null);
-            Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => LoginPage()),
-            (route) => false,);
-          }, child: Text('Logout')),
-        ],
+      body: Center(
+        child: Column(
+          children: [
+            StreamBuilder<UserDto?>(
+                stream: sl.get<UserRepository>().observeItem(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return Text("HomePage");
+                  }
+                  return Text(
+                    snapshot.data.toString(),
+                    textAlign: TextAlign.center,
+                  );
+                }),
+            SizedBox(
+              height: 42,
+            ),
+            TextButton(
+                onPressed: () async {
+                  await sl.get<SharedPreferenceData>().setToken(null);
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => LoginPage()),
+                    (route) => false,
+                  );
+                },
+                child: Text('Logout')),
+          ],
+        ),
       ),
-
     );
   }
 }
