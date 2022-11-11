@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gift_manager/di/service_locator.dart';
 import 'package:gift_manager/extentions/theme_extentions.dart';
 import 'package:gift_manager/presentation/home/view/home_page.dart';
 import 'package:gift_manager/presentation/login/bloc/login_bloc.dart';
-import 'package:gift_manager/presentation/login/model/email_error.dart';
 import 'package:gift_manager/presentation/login/model/models.dart';
-import 'package:gift_manager/presentation/login/model/password_error.dart';
 import 'package:gift_manager/presentation/registration/view/registration_page.dart';
 import 'package:gift_manager/resources/app_colors.dart';
 
@@ -15,7 +14,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginBloc(),
+      create: (context) => sl.get<LoginBloc>(),
       child: Scaffold(
         body: _LoginPageWidget(),
       ),
@@ -56,10 +55,9 @@ class _LoginPageWidgetState extends State<_LoginPageWidget> {
         BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state.authenticated) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => HomePage(),
-                ),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => HomePage()),
+                (route) => false,
               );
             }
           },

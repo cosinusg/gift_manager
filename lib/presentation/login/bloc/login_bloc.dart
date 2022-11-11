@@ -1,10 +1,13 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:either_dart/either.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+
 import 'package:gift_manager/data/http/api_error_type.dart';
 import 'package:gift_manager/data/http/model/api_error.dart';
 import 'package:gift_manager/data/http/model/user_with_tokens_dto.dart';
@@ -12,7 +15,6 @@ import 'package:gift_manager/data/http/unauthorized_api_service.dart';
 import 'package:gift_manager/data/repository/refresh_token_repository.dart';
 import 'package:gift_manager/data/repository/token_repository.dart';
 import 'package:gift_manager/data/repository/user_repository.dart';
-import 'package:gift_manager/di/service_locator.dart';
 
 import '../model/models.dart';
 
@@ -23,7 +25,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   //static final _passwordRegexp =
   //    RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$');
 
-  LoginBloc() : super(LoginState.initial()) {
+  final UserRepository userRepository;
+  final TokenRepository tokenRepository;
+  final RefreshTokenRepository refreshTokenRepository;
+
+  LoginBloc({
+    required this.userRepository,
+    required this.tokenRepository,
+    required this.refreshTokenRepository,
+  }) : super(LoginState.initial()) {
     on<LoginLoginButtonClicked>(_loginButtonClicked);
     //on<LoginLoginButtonClicked>((e, ee) => ); //проверка типа
     on<LoginEmailChanged>(_loginEmailChanged);
@@ -38,10 +48,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           await _login(email: state.email, password: state.password);
       if (response.isRight) {
         final userWithTokens = response.right;
-        await sl.get<UserRepository>().setItem(userWithTokens.user);
-        await sl.get<TokenRepository>().setItem(userWithTokens.token);
-        await sl.get<RefreshTokenRepository>()
-            .setItem(userWithTokens.refreshToken);
+        await userRepository.setItem(userWithTokens.user);
+        await tokenRepository.setItem(userWithTokens.token);
+        await refreshTokenRepository.setItem(userWithTokens.refreshToken);
         emit(state.copyWith(authenticated: true));
       } else {
         final apiError = response.left;

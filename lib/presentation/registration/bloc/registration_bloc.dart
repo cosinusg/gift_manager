@@ -1,24 +1,20 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
-import 'package:dio/dio.dart';
 import 'package:either_dart/either.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:gift_manager/data/http/model/api_error.dart';
-import 'package:gift_manager/data/http/model/create_account_request_dto.dart';
 import 'package:gift_manager/data/http/model/user_with_tokens_dto.dart';
 import 'package:gift_manager/data/http/unauthorized_api_service.dart';
 import 'package:gift_manager/data/model/request_error.dart';
 import 'package:gift_manager/data/repository/refresh_token_repository.dart';
 import 'package:gift_manager/data/repository/token_repository.dart';
 import 'package:gift_manager/data/repository/user_repository.dart';
-import 'package:gift_manager/data/storage/shared_preference_data.dart';
-import 'package:gift_manager/di/service_locator.dart';
 import 'package:gift_manager/presentation/registration/model/errors.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 part 'registration_event.dart';
 part 'registration_state.dart';
@@ -47,8 +43,15 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   bool _highLightNameError = false;
   RegistrationNameError? _nameError = RegistrationNameError.empty;
 
-  RegistrationBloc()
-      : super(RegistrationFieldsInfo(
+  final UserRepository userRepository;
+  final TokenRepository tokenRepository;
+  final RefreshTokenRepository refreshTokenRepository;
+
+  RegistrationBloc({
+    required this.userRepository,
+    required this.tokenRepository,
+    required this.refreshTokenRepository,
+  }) : super(RegistrationFieldsInfo(
             avatarLink: _avatarBuilder(_defaultAvatarKey))) {
     on<RegistrationChangeAvatar>(_onChangeAvatar);
     on<RegistrationEmailChanged>(_onEmailChanged);
@@ -195,10 +198,9 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     final response = await _register();
     if (response.isRight) {
       final userWithTokens = response.right;
-      await sl.get<UserRepository>().setItem(userWithTokens.user);
-      await sl.get<TokenRepository>().setItem(userWithTokens.token);
-      await sl.get<RefreshTokenRepository>()
-          .setItem(userWithTokens.refreshToken);
+      await userRepository.setItem(userWithTokens.user);
+      await tokenRepository.setItem(userWithTokens.token);
+      await refreshTokenRepository.setItem(userWithTokens.refreshToken);
       emit(RegistrationComplete());
     } else {
       // TODO
