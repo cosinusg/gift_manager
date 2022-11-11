@@ -10,12 +10,22 @@ class HomeInitial extends HomeState {
   List<Object?> get props => [];
 }
 
-class HomeWithUser extends HomeState {
+class HomeWithUserInfo extends HomeState {
   final UserDto user;
-  HomeWithUser(
-    this.user,
-  );
+  final List<GiftDto> gifts;
+
+  HomeWithUserInfo({
+    required this.user,
+    required this.gifts,
+  });
   
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user,gifts];
+}
+
+class HomeGoToLogin extends HomeState {
+  const HomeGoToLogin();
+  @override
+  List<Object?> get props => [];
+
 }

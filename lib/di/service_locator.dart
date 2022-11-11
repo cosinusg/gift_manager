@@ -1,10 +1,12 @@
 import 'package:get_it/get_it.dart';
 import 'package:gift_manager/data/http/dio_provider.dart';
+import 'package:gift_manager/data/http/unauthorized_api_service.dart';
 import 'package:gift_manager/data/repository/refresh_token_provider.dart';
 import 'package:gift_manager/data/repository/refresh_token_repository.dart';
 import 'package:gift_manager/data/repository/token_repository.dart';
 import 'package:gift_manager/data/repository/user_repository.dart';
 import 'package:gift_manager/data/storage/shared_preference_data.dart';
+import 'package:gift_manager/domain/logout_interactor.dart';
 import 'package:gift_manager/presentation/home/bloc/home_bloc.dart';
 import 'package:gift_manager/presentation/login/bloc/login_bloc.dart';
 import 'package:gift_manager/presentation/registration/bloc/registration_bloc.dart';
@@ -40,13 +42,23 @@ void _setupRepositories() {
 }
 
 // ONLY SINGTONES
-void _setupInteractors() {}
+void _setupInteractors() {
+  sl.registerLazySingleton(
+    () => LogoutInteractor(
+      userRepository: sl.get<UserRepository>(),
+      tokenRepository: sl.get<TokenRepository>(),
+      refreshTokenRepository: sl.get<RefreshTokenRepository>(),
+    ),
+  );
+}
 
 // ONLY SINGTONES
 void _setupComplexInteractors() {}
 
 // ONLY SINGTONES
-void _setupApiRelatedClasses() {}
+void _setupApiRelatedClasses() {
+  sl.registerLazySingleton(() => UnauthorizedApiService());
+}
 
 // ONLY FACTORIES
 void _setupBlocs() {
@@ -55,6 +67,7 @@ void _setupBlocs() {
       userRepository: sl.get<UserRepository>(),
       tokenRepository: sl.get<TokenRepository>(),
       refreshTokenRepository: sl.get<RefreshTokenRepository>(),
+      unauthorizedApiService: sl.get<UnauthorizedApiService>(),
     ),
   );
   sl.registerFactory(
@@ -62,6 +75,7 @@ void _setupBlocs() {
       userRepository: sl.get<UserRepository>(),
       tokenRepository: sl.get<TokenRepository>(),
       refreshTokenRepository: sl.get<RefreshTokenRepository>(),
+      unauthorizedApiService: sl.get<UnauthorizedApiService>(),
     ),
   );
   sl.registerFactory(
@@ -70,6 +84,11 @@ void _setupBlocs() {
     ),
   );
   sl.registerFactory(
-    () => HomeBloc(userRepository: sl.get<UserRepository>()),
+    () => HomeBloc(
+      userRepository: sl.get<UserRepository>(),
+      logoutInteractor: sl.get<LogoutInteractor>(),
+      unauthorizedApiService: sl.get<UnauthorizedApiService>(),
+      tokenRepository: sl.get<TokenRepository>(),
+    ),
   );
 }
